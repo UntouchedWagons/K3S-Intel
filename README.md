@@ -38,14 +38,14 @@ deb http://mirror.csclub.uwaterloo.ca/debian/ bookworm main non-free-firmware co
 Press Ctrl+X to save, then Y to confirm and then enter.
 
 ```
-sudo apt-get update
-sudo apt-get install intel-media-va-driver-non-free
+$sudo apt-get update
+$sudo apt-get install intel-media-va-driver-non-free
 ```
 
 Optionally you can install `vainfo` to see what codecs your GPU supports:
 
 ```
-$ vainfo
+$vainfo
 error: can't connect to X server!
 libva info: VA-API version 1.17.0
 libva info: Trying to open /usr/lib/x86_64-linux-gnu/dri/iHD_drv_video.so
@@ -118,20 +118,20 @@ Node Feature Discovery uses rules to determine what to label and why. The Intel 
 ### Installing NFD
 
 ```
-helm repo add node-feature-discovery https://kubernetes-sigs.github.io/node-feature-discovery/charts
-helm repo update
+$helm repo add node-feature-discovery https://kubernetes-sigs.github.io/node-feature-discovery/charts
+$helm repo update
 
-helm upgrade --install node-feature-discovery node-feature-discovery/node-feature-discovery
+$helm upgrade --install node-feature-discovery node-feature-discovery/node-feature-discovery
 ```
 
 ## Intel GPU Plugin
 
 ```
-helm repo add intel https://intel.github.io/helm-charts/
-helm repo update
+$helm repo add intel https://intel.github.io/helm-charts/
+$helm repo update
 
-helm upgrade --install device-plugin-operator intel/intel-device-plugins-operator
-helm upgrade --install gpu-device-plugin intel/intel-device-plugins-gpu --values values.yaml
+$helm upgrade --install device-plugin-operator intel/intel-device-plugins-operator
+$helm upgrade --install gpu-device-plugin intel/intel-device-plugins-gpu --values values.yaml
 ```
 
 The values.yaml file is quite sparse, having only one key-pair: `sharedDevNum: 4`. Setting sharedDevNum to N where N is greater than 1 allows N pods to use the same GPU on a node. Uncommenting `nodeFeatureRule: false` disables the usage of Node Feature Discovery rules for detecting various Intel GPUs
@@ -143,7 +143,7 @@ And that's it! You are now ready to use your Intel GPU in a pod.
 To make sure it works run the test pod in vainfo-pod.yaml:
 
 ```
-kubectl apply -f vainfo-pod.yaml
+$kubectl apply -f vainfo-pod.yaml
 ```
 
 Give the cluster a few seconds to start the pod then check its output:
@@ -168,7 +168,7 @@ It works!
 Remove the deployment:
 
 ```
-kubectl delete -f vainfo-pod.yaml
+$kubectl delete -f vainfo-pod.yaml
 ```
 
 ## Jellyfin
