@@ -12,9 +12,16 @@ For this tutorial I assume you have the following:
  * Helm installed
  * Cert Manager installed
 
-This tutorial has only been tested on Debian 13 as of February 9, 2026.
+### Tested Linux Distros
+
+This guide has been tested on:
+
+ * Debian 13
+ * Ubuntu 26.04
 
 ## Installing needed packages
+
+### Debian
 
 In order to effectively use your Intel GPU for quicksync we need to install a package, `intel-media-va-driver-non-free`. Since I use Debian's cloud images the step to enable to correct repositories is slightly different for some reason:
 
@@ -37,9 +44,14 @@ deb http://mirror.csclub.uwaterloo.ca/debian/ bookworm main non-free-firmware co
 
 Press Ctrl+X to save, then Y to confirm and then enter.
 
+### Ubuntu
+
+Nothing extra needs to be done.
+
 ```
 $sudo apt-get update
 $sudo apt-get install intel-media-va-driver-non-free
+$sudo reboot
 ```
 
 Optionally you can install `vainfo` to see what codecs your GPU supports:
@@ -134,6 +146,12 @@ $helm upgrade --install device-plugin-operator intel/intel-device-plugins-operat
 $helm upgrade --install gpu-device-plugin intel/intel-device-plugins-gpu --values values.yaml
 ```
 
+### Ubuntu 26.04
+
+If you are running Ubuntu you must instead use `values-ubuntu.yaml` which has an additional, important setting so that pods can be created properly. (See this GitHub issue: https://github.com/intel/intel-device-plugins-for-kubernetes/issues/2296)
+
+---
+
 The values.yaml file is quite sparse, having only one key-pair: `sharedDevNum: 4`. Setting sharedDevNum to N where N is greater than 1 allows N pods to use the same GPU on a node. Uncommenting `nodeFeatureRule: false` disables the usage of Node Feature Discovery rules for detecting various Intel GPUs
 
 And that's it! You are now ready to use your Intel GPU in a pod.
@@ -180,7 +198,7 @@ I have set up [Jellyfin](https://github.com/UntouchedWagons/K3S-Cluster-Setup/bl
         intel.feature.node.kubernetes.io/gpu: "true"
       containers:
         - name: jellyfin
-          image: jellyfin/jellyfin:10.8.13-1
+          image: jellyfin/jellyfin:10.11.11
           resources:
             limits:
               gpu.intel.com/i915: "1"
@@ -189,8 +207,11 @@ I have set up [Jellyfin](https://github.com/UntouchedWagons/K3S-Cluster-Setup/bl
 
 Apply the manifest then go into the Playback settings of Jellyfin and choose Intel QuickSync.
 
+If you want to make sure that QuickSync transcoding is working start playback in Jellyfin and adjust the bitrate to a low setting. SSH into the node that Jellyfin is assigned to and run `sudo intel_gpu_top` (`intel_gpu_top` is from the `intel-gpu-tools` package on both Debian and Ubuntu).
+
 ## Changelog
 
+ * June 10, 2026 - Added information for Ubuntu 26.04, updated jellyfin tag
  * February 9, 2026 - Spring cleaning, added test pod, adjusted valus.yaml slightly
  * March 5, 2024 - Initial commit
 
